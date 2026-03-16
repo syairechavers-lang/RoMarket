@@ -1,0 +1,1014 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+  <title>RoMarket - Premium Account Marketplace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a12;
+      --bg2: #111120;
+      --bg3: #18182a;
+      --card: #16162a;
+      --card2: #1e1e35;
+      --border: rgba(139,92,246,0.18);
+      --border2: rgba(139,92,246,0.35);
+      --purple: #8b5cf6;
+      --purple2: #a78bfa;
+      --purple3: #7c3aed;
+      --text: #f0eeff;
+      --muted: #9090b0;
+      --radius: 14px;
+      --radius-sm: 8px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── LOADING SCREEN ── */
+    #loading-screen {
+      position: fixed; inset: 0; z-index: 9999;
+      background: linear-gradient(160deg, #06060f 0%, #12082a 50%, #06060f 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      transition: opacity 0.5s ease;
+    }
+    #loading-screen.fade-out { opacity: 0; pointer-events: none; }
+
+    .loading-img {
+      width: 180px; height: 180px; object-fit: contain;
+      filter: drop-shadow(0 0 40px rgba(139,92,246,0.6));
+      animation: floatPulse 2s ease-in-out infinite;
+      margin-bottom: 28px;
+    }
+    .loading-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.02em;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .loading-sub {
+      color: var(--purple2);
+      font-size: 0.95rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 36px;
+    }
+    .loading-dots { display: flex; gap: 10px; }
+    .loading-dot {
+      width: 10px; height: 10px;
+      background: var(--purple);
+      border-radius: 50%;
+      animation: bounce 1s ease-in-out infinite;
+    }
+    .loading-dot:nth-child(2) { animation-delay: 0.2s; background: var(--purple2); }
+    .loading-dot:nth-child(3) { animation-delay: 0.4s; background: #c4b5fd; }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+    @keyframes floatPulse {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-10px) scale(1.04); }
+    }
+
+    /* ── MAIN APP ── */
+    #app { display: none; }
+    #app.visible { display: block; }
+
+    /* ── HEADER ── */
+    .header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,10,18,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 0;
+    }
+    .header-inner {
+      max-width: 1200px; margin: 0 auto;
+      padding: 0 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px;
+    }
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem; font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.03em;
+      text-decoration: none;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .logo-dot {
+      width: 10px; height: 10px;
+      background: var(--purple);
+      border-radius: 50%;
+      box-shadow: 0 0 12px var(--purple);
+      flex-shrink: 0;
+    }
+    .header-actions { display: flex; align-items: center; gap: 10px; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 9px 18px; border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem; font-weight: 600;
+      border: none; cursor: pointer;
+      transition: all 0.18s ease;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: var(--purple3);
+      color: #fff;
+      box-shadow: 0 0 20px rgba(124,58,237,0.4);
+    }
+    .btn-primary:hover { background: var(--purple); box-shadow: 0 0 28px rgba(139,92,246,0.5); transform: translateY(-1px); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { border-color: var(--purple); color: var(--purple2); }
+    .btn-danger { background: #7f1d1d; color: #fca5a5; }
+    .btn-danger:hover { background: #991b1b; }
+    .btn-sm { padding: 6px 12px; font-size: 0.82rem; }
+    .btn-full { width: 100%; }
+
+    /* ── SECTIONS ── */
+    .section {
+      max-width: 1200px; margin: 0 auto;
+      padding: 60px 20px;
+    }
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.4rem, 3vw, 1.9rem);
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.03em;
+      margin-bottom: 6px;
+    }
+    .section-sub {
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin-bottom: 32px;
+    }
+    .section-header { margin-bottom: 32px; }
+
+    /* ── HERO ── */
+    .hero {
+      text-align: center;
+      padding: 80px 20px 60px;
+      max-width: 1200px; margin: 0 auto;
+      position: relative;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: -60px; left: 50%; transform: translateX(-50%);
+      width: 600px; height: 400px;
+      background: radial-gradient(ellipse, rgba(124,58,237,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(139,92,246,0.12);
+      border: 1px solid var(--border2);
+      color: var(--purple2);
+      font-size: 0.8rem; font-weight: 600;
+      padding: 5px 14px; border-radius: 100px;
+      margin-bottom: 24px;
+      letter-spacing: 0.06em; text-transform: uppercase;
+    }
+    .hero-badge-dot {
+      width: 6px; height: 6px; background: var(--purple);
+      border-radius: 50%; animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.2rem, 6vw, 3.8rem);
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: 18px;
+    }
+    .hero h1 span { color: var(--purple2); }
+    .hero p {
+      color: var(--muted);
+      font-size: clamp(0.95rem, 2vw, 1.1rem);
+      max-width: 520px; margin: 0 auto 36px;
+      line-height: 1.7;
+    }
+    .hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+    /* ── SEARCH ── */
+    .search-wrap {
+      position: relative; max-width: 480px;
+    }
+    .search-icon {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      color: var(--muted); pointer-events: none;
+    }
+    .search-input {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.92rem;
+      padding: 11px 14px 11px 40px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-input:focus { border-color: var(--purple); }
+    .search-input::placeholder { color: var(--muted); }
+
+    /* ── ACCOUNT GRID ── */
+    .accounts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 18px;
+    }
+    .account-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: all 0.22s ease;
+      position: relative;
+    }
+    .account-card:hover {
+      border-color: var(--border2);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(139,92,246,0.15);
+    }
+    .account-img {
+      width: 100%; aspect-ratio: 1/1;
+      object-fit: cover;
+      background: var(--bg3);
+    }
+    .account-img-placeholder {
+      width: 100%; aspect-ratio: 1/1;
+      background: var(--bg3);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .account-info { padding: 14px; }
+    .account-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700; font-size: 0.97rem;
+      color: var(--text);
+      margin-bottom: 4px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .account-price {
+      color: var(--purple2);
+      font-weight: 700; font-size: 1.05rem;
+      margin-bottom: 12px;
+    }
+    .empty-state {
+      grid-column: 1/-1;
+      text-align: center; padding: 60px 20px;
+      color: var(--muted);
+    }
+    .empty-icon {
+      font-size: 3rem; margin-bottom: 12px; opacity: 0.4;
+    }
+    .empty-state p { font-size: 0.95rem; }
+
+    /* ── VOUCHERS ── */
+    .vouchers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+    }
+    .voucher-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      aspect-ratio: 16/10;
+      position: relative;
+      transition: all 0.22s;
+      cursor: pointer;
+    }
+    .voucher-card:hover { border-color: var(--border2); transform: scale(1.02); }
+    .voucher-card img { width: 100%; height: 100%; object-fit: cover; }
+    .voucher-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(0deg, rgba(0,0,0,0.4) 0%, transparent 60%);
+    }
+    .voucher-label {
+      position: absolute; bottom: 8px; left: 10px;
+      font-size: 0.75rem; font-weight: 600;
+      color: #fff; opacity: 0.8;
+    }
+
+    /* ── FAQ ── */
+    .faq-list { display: flex; flex-direction: column; gap: 10px; }
+    .faq-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .faq-item.open { border-color: var(--border2); }
+    .faq-question {
+      width: 100%; display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px;
+      background: none; border: none; cursor: pointer;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.96rem; font-weight: 600;
+      text-align: left;
+      gap: 12px;
+    }
+    .faq-chevron {
+      flex-shrink: 0;
+      transition: transform 0.25s ease;
+      color: var(--purple);
+    }
+    .faq-item.open .faq-chevron { transform: rotate(180deg); }
+    .faq-answer {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+      color: var(--muted);
+      font-size: 0.9rem; line-height: 1.7;
+      padding: 0 20px;
+    }
+    .faq-item.open .faq-answer { max-height: 200px; padding: 0 20px 16px; }
+
+    /* ── SUPPORT ── */
+    .support-cards {
+      display: flex; flex-wrap: wrap; gap: 14px;
+    }
+    .support-card {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 600; font-size: 0.9rem;
+      transition: all 0.2s;
+      flex: 1; min-width: 140px;
+    }
+    .support-card:hover { border-color: var(--border2); background: var(--card2); transform: translateY(-2px); }
+    .support-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 28px 20px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.84rem;
+      max-width: 1200px; margin: 0 auto;
+    }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(6px);
+      display: none; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: 18px;
+      width: 100%; max-width: 440px;
+      padding: 28px;
+      position: relative;
+      animation: slideUp 0.25s ease;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .modal-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.25rem; font-weight: 800;
+      color: #fff; margin-bottom: 20px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      background: var(--bg3); border: 1px solid var(--border);
+      color: var(--muted); border-radius: 8px;
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 1rem;
+      transition: all 0.2s;
+    }
+    .modal-close:hover { border-color: var(--purple); color: var(--purple2); }
+
+    /* ── FORM ── */
+    .form-group { margin-bottom: 14px; }
+    .form-label {
+      display: block;
+      color: var(--muted); font-size: 0.82rem; font-weight: 600;
+      letter-spacing: 0.04em; text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .form-input, .form-file {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.92rem;
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-input:focus { border-color: var(--purple); }
+    .form-file { padding: 8px 14px; cursor: pointer; }
+    .form-file::-webkit-file-upload-button {
+      background: var(--purple3); color: #fff;
+      border: none; border-radius: 6px;
+      padding: 4px 10px; cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem; margin-right: 10px;
+    }
+    .msg {
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem; font-weight: 500;
+      margin-bottom: 14px;
+    }
+    .msg-error { background: rgba(127,29,29,0.4); border: 1px solid rgba(252,165,165,0.3); color: #fca5a5; }
+    .msg-success { background: rgba(20,83,45,0.4); border: 1px solid rgba(134,239,172,0.3); color: #86efac; }
+
+    /* Admin tabs */
+    .admin-tabs { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
+    .tab-btn {
+      flex: 1; min-width: 80px;
+      padding: 8px 10px;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--muted); font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s; text-align: center;
+    }
+    .tab-btn.active { background: var(--purple3); color: #fff; border-color: var(--purple3); }
+
+    /* Delete buttons on cards */
+    .account-delete {
+      position: absolute; top: 8px; right: 8px;
+      background: rgba(127,29,29,0.85);
+      border: none; border-radius: 8px;
+      color: #fca5a5; cursor: pointer;
+      width: 28px; height: 28px;
+      display: none; align-items: center; justify-content: center;
+      font-size: 0.85rem; transition: all 0.2s;
+    }
+    .account-card:hover .account-delete { display: flex; }
+    .account-delete:hover { background: #991b1b; }
+
+    /* Voucher delete */
+    .voucher-delete {
+      position: absolute; top: 6px; right: 6px;
+      background: rgba(127,29,29,0.9);
+      border: none; border-radius: 6px;
+      color: #fca5a5; cursor: pointer;
+      width: 26px; height: 26px;
+      display: none; align-items: center; justify-content: center;
+      font-size: 0.8rem; z-index: 2;
+    }
+    .voucher-card:hover .voucher-delete { display: flex; }
+
+    /* Stat badges */
+    .stats-bar {
+      display: flex; gap: 12px; flex-wrap: wrap;
+      margin-bottom: 32px;
+    }
+    .stat-chip {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 6px 14px;
+      font-size: 0.84rem; font-weight: 600;
+      color: var(--text);
+    }
+    .stat-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--purple); }
+
+    /* Divider */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 8px 0 20px; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 4px; }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .section { padding: 40px 16px; }
+      .hero { padding: 50px 16px 40px; }
+      .hero h1 { font-size: 2rem; }
+      .accounts-grid { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 12px; }
+      .vouchers-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+      .modal { padding: 22px 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOADING SCREEN -->
+<div id="loading-screen">
+  <img
+    class="loading-img"
+    src="https://d2xsxph8kpxj0f.cloudfront.net/310519663434481271/2PQC8wdXLDAjCG2YBFidCc/Gemini_Generated_Image_yypzpdyypzpdyypz_64167264.png"
+    alt="RoMarket"
+    onerror="this.style.display='none'"
+  />
+  <div class="loading-title">Welcome to my store</div>
+  <div class="loading-sub">RoMarket · Premium Marketplace</div>
+  <div class="loading-dots">
+    <div class="loading-dot"></div>
+    <div class="loading-dot"></div>
+    <div class="loading-dot"></div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <a class="logo" href="#">
+        <span class="logo-dot"></span>RoMarket
+      </a>
+      <div class="header-actions">
+        <button class="btn btn-ghost btn-sm" onclick="openAdmin()">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          Admin
+        </button>
+        <a class="btn btn-primary btn-sm" href="https://discord.gg/hsDf45y3w" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.033.054a19.9 19.9 0 005.993 3.03.077.077 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03z"/></svg>
+          Discord
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      Premium Accounts
+    </div>
+    <h1>The Best <span>Account</span><br>Marketplace</h1>
+    <p>Browse verified, legit accounts at unbeatable prices. Every listing is authenticated before being listed.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="#accounts">
+        Browse Accounts
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+      </a>
+      <a class="btn btn-ghost" href="https://discord.gg/hsDf45y3w" target="_blank">Join Discord</a>
+    </div>
+  </div>
+
+  <!-- ACCOUNTS SECTION -->
+  <div class="section" id="accounts">
+    <div class="section-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+      <div>
+        <div class="section-title">Marketplace</div>
+        <div class="section-sub">All accounts are verified and 100% legit</div>
+        <div class="stats-bar" id="stats-bar">
+          <div class="stat-chip"><span class="stat-dot"></span><span id="count-accounts">0</span> Listings</div>
+        </div>
+      </div>
+      <div class="search-wrap">
+        <svg class="search-icon" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/></svg>
+        <input class="search-input" type="text" placeholder="Search accounts…" id="search-input" oninput="renderAccounts()" />
+      </div>
+    </div>
+    <div class="accounts-grid" id="accounts-grid"></div>
+  </div>
+
+  <!-- VOUCHERS SECTION -->
+  <div class="section" id="vouchers" style="padding-top:0;">
+    <div class="section-header">
+      <div class="section-title">Vouchers</div>
+      <div class="section-sub">Real reviews from real customers</div>
+    </div>
+    <div class="vouchers-grid" id="vouchers-grid"></div>
+  </div>
+
+  <!-- FAQ SECTION -->
+  <div class="section" id="faq" style="padding-top:0;">
+    <div class="section-header">
+      <div class="section-title">FAQ</div>
+      <div class="section-sub">Everything you need to know</div>
+    </div>
+    <div class="faq-list" id="faq-list"></div>
+  </div>
+
+  <!-- SUPPORT SECTION -->
+  <div class="section" style="padding-top:0;">
+    <div class="section-header">
+      <div class="section-title">Support</div>
+      <div class="section-sub">Get in touch with us</div>
+    </div>
+    <div class="support-cards">
+      <a class="support-card" href="https://discord.gg/hsDf45y3w" target="_blank">
+        <div class="support-icon" style="background:rgba(88,101,242,0.18);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#5865F2"><path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.033.054a19.9 19.9 0 005.993 3.03.077.077 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03z"/></svg>
+        </div>
+        Discord
+      </a>
+      <a class="support-card" href="https://tiktok.com/@romarket" target="_blank">
+        <div class="support-icon" style="background:rgba(255,0,80,0.12);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#ff0050"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.76a4.85 4.85 0 01-1.01-.07z"/></svg>
+        </div>
+        TikTok
+      </a>
+      <a class="support-card" href="https://youtube.com/@romarket" target="_blank">
+        <div class="support-icon" style="background:rgba(255,0,0,0.1);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        </div>
+        YouTube
+      </a>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer">
+      © 2026 RoMarket · Premium Account Marketplace · All rights reserved
+    </div>
+  </footer>
+
+</div><!-- /app -->
+
+<!-- ADMIN MODAL -->
+<div class="modal-overlay" id="admin-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAdmin()">✕</button>
+
+    <!-- LOGIN -->
+    <div id="admin-login">
+      <div class="modal-title">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        Admin Panel
+      </div>
+      <div id="login-msg"></div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" id="admin-password-input" placeholder="Enter admin password…" onkeydown="if(event.key==='Enter')doLogin()" />
+      </div>
+      <button class="btn btn-primary btn-full" onclick="doLogin()">Login</button>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="admin-dashboard" style="display:none;">
+      <div class="modal-title">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        Admin Dashboard
+      </div>
+      <div id="dash-msg"></div>
+      <div class="admin-tabs">
+        <button class="tab-btn active" onclick="switchTab('add-account')">➕ Account</button>
+        <button class="tab-btn" onclick="switchTab('add-voucher')">🏷️ Voucher</button>
+        <button class="tab-btn" onclick="switchTab('change-pw')">🔑 Password</button>
+        <button class="tab-btn" onclick="switchTab('manage')">🗑️ Manage</button>
+      </div>
+
+      <!-- Add Account Tab -->
+      <div id="tab-add-account">
+        <div class="form-group">
+          <label class="form-label">Account Name</label>
+          <input class="form-input" type="text" id="acc-name" placeholder="e.g. Premium Netflix" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Price ($)</label>
+          <input class="form-input" type="number" id="acc-price" placeholder="e.g. 9.99" min="0" step="0.01" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Image</label>
+          <input class="form-file" type="file" id="acc-image" accept="image/*" />
+        </div>
+        <button class="btn btn-primary btn-full" onclick="addAccount()">Add Account</button>
+      </div>
+
+      <!-- Add Voucher Tab -->
+      <div id="tab-add-voucher" style="display:none;">
+        <div class="form-group">
+          <label class="form-label">Voucher Image</label>
+          <input class="form-file" type="file" id="voucher-image" accept="image/*" />
+        </div>
+        <button class="btn btn-primary btn-full" onclick="addVoucher()">Upload Voucher</button>
+      </div>
+
+      <!-- Change Password Tab -->
+      <div id="tab-change-pw" style="display:none;">
+        <div class="form-group">
+          <label class="form-label">Current Password</label>
+          <input class="form-input" type="password" id="cur-pw" placeholder="Current password" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">New Password</label>
+          <input class="form-input" type="password" id="new-pw" placeholder="New password (min 6 chars)" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm Password</label>
+          <input class="form-input" type="password" id="conf-pw" placeholder="Confirm new password" />
+        </div>
+        <button class="btn btn-primary btn-full" onclick="changePassword()">Change Password</button>
+      </div>
+
+      <!-- Manage Tab -->
+      <div id="tab-manage" style="display:none;">
+        <p style="color:var(--muted);font-size:0.88rem;margin-bottom:14px;">Delete accounts or vouchers by hovering over them on the page and clicking the trash icon. Or clear all below:</p>
+        <hr class="divider" />
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-danger btn-sm" onclick="clearAll('accounts')">Clear All Accounts</button>
+          <button class="btn btn-danger btn-sm" onclick="clearAll('vouchers')">Clear All Vouchers</button>
+        </div>
+      </div>
+
+      <hr class="divider" style="margin-top:20px;" />
+      <button class="btn btn-ghost btn-sm btn-full" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── DATA ──
+  function getAccounts() {
+    try { return JSON.parse(localStorage.getItem('accounts') || '[]'); } catch { return []; }
+  }
+  function getVouchers() {
+    try { return JSON.parse(localStorage.getItem('vouchers') || '[]'); } catch { return []; }
+  }
+  function getPassword() { return localStorage.getItem('adminPassword') || 'DEXADMIN123'; }
+
+  // ── LOADING ──
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const ls = document.getElementById('loading-screen');
+      ls.classList.add('fade-out');
+      setTimeout(() => {
+        ls.style.display = 'none';
+        document.getElementById('app').classList.add('visible');
+        renderAccounts();
+        renderVouchers();
+        renderFAQ();
+      }, 500);
+    }, 3000);
+  });
+
+  // ── FAQ DATA ──
+  const faqs = [
+    { q: "Are these accounts beamed?", a: "No, our accounts are not beamed and 100% legit. All accounts are verified and authentic before being listed on our marketplace." },
+    { q: "How do I purchase an account?", a: "Click the 'Buy' button on any account, join our Discord server, open a ticket, and our team will process your order within minutes." },
+    { q: "What payment methods do you accept?", a: "We accept various payment methods through our Discord support system. Contact our team for available payment options." },
+    { q: "Are refunds available?", a: "Refund policies vary by account type. Please contact our support team on Discord for specific refund information." },
+    { q: "Buyer Protection / Warranty", a: "We offer optional buyer protections including: 24-hour replacement guarantee if the account has issues, insurance if the account gets reclaimed, and verified seller badges. Get verified by visiting our Discord and requesting verification." }
+  ];
+
+  function renderFAQ() {
+    const list = document.getElementById('faq-list');
+    list.innerHTML = faqs.map((f, i) => `
+      <div class="faq-item" id="faq-${i}">
+        <button class="faq-question" onclick="toggleFAQ(${i})">
+          <span>${f.q}</span>
+          <svg class="faq-chevron" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-answer">${f.a}</div>
+      </div>
+    `).join('');
+  }
+
+  function toggleFAQ(i) {
+    const item = document.getElementById('faq-' + i);
+    item.classList.toggle('open');
+  }
+
+  // ── RENDER ACCOUNTS ──
+  function renderAccounts() {
+    const grid = document.getElementById('accounts-grid');
+    const q = document.getElementById('search-input').value.toLowerCase();
+    let accs = getAccounts();
+    if (q) accs = accs.filter(a => a.name.toLowerCase().includes(q));
+    document.getElementById('count-accounts').textContent = getAccounts().length;
+
+    if (!accs.length) {
+      grid.innerHTML = `<div class="empty-state">
+        <div class="empty-icon">🛒</div>
+        <p>${q ? 'No accounts match your search.' : 'No accounts listed yet. Check back soon!'}</p>
+      </div>`;
+      return;
+    }
+
+    grid.innerHTML = accs.map((a, i) => `
+      <div class="account-card">
+        ${a.image
+          ? `<img class="account-img" src="${a.image}" alt="${a.name}" />`
+          : `<div class="account-img-placeholder"><svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="rgba(139,92,246,0.3)" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg></div>`
+        }
+        <button class="account-delete" title="Delete" onclick="deleteAccount(${i})">🗑</button>
+        <div class="account-info">
+          <div class="account-name">${a.name}</div>
+          <div class="account-price">$${parseFloat(a.price).toFixed(2)}</div>
+          <button class="btn btn-primary btn-full btn-sm" onclick="handleBuy()">Buy Now</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ── RENDER VOUCHERS ──
+  function renderVouchers() {
+    const grid = document.getElementById('vouchers-grid');
+    const vouchers = getVouchers();
+    if (!vouchers.length) {
+      grid.innerHTML = `<div style="color:var(--muted);font-size:0.9rem;padding:20px 0;">No vouchers yet.</div>`;
+      return;
+    }
+    grid.innerHTML = vouchers.map((v, i) => `
+      <div class="voucher-card">
+        <img src="${v}" alt="Voucher ${i+1}" />
+        <div class="voucher-overlay"></div>
+        <div class="voucher-label">Voucher #${i+1}</div>
+        <button class="voucher-delete" title="Delete" onclick="deleteVoucher(${i})">🗑</button>
+      </div>
+    `).join('');
+  }
+
+  // ── BUY ──
+  function handleBuy() {
+    if (confirm("This will take you to Discord. Join the server, open a ticket, then wait a couple minutes.")) {
+      window.open("https://discord.gg/hsDf45y3w", "_blank");
+    }
+  }
+
+  // ── ADMIN MODAL ──
+  let isLoggedIn = false;
+
+  function openAdmin() {
+    document.getElementById('admin-modal').classList.add('open');
+    if (isLoggedIn) {
+      document.getElementById('admin-login').style.display = 'none';
+      document.getElementById('admin-dashboard').style.display = 'block';
+    } else {
+      document.getElementById('admin-login').style.display = 'block';
+      document.getElementById('admin-dashboard').style.display = 'none';
+    }
+  }
+
+  function closeAdmin() {
+    document.getElementById('admin-modal').classList.remove('open');
+    document.getElementById('login-msg').innerHTML = '';
+    document.getElementById('admin-password-input').value = '';
+  }
+
+  document.getElementById('admin-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeAdmin();
+  });
+
+  function doLogin() {
+    const val = document.getElementById('admin-password-input').value;
+    if (val === getPassword()) {
+      isLoggedIn = true;
+      document.getElementById('login-msg').innerHTML = '';
+      document.getElementById('admin-login').style.display = 'none';
+      document.getElementById('admin-dashboard').style.display = 'block';
+    } else {
+      document.getElementById('login-msg').innerHTML = '<div class="msg msg-error">❌ Wrong password</div>';
+      document.getElementById('admin-password-input').value = '';
+    }
+  }
+
+  function doLogout() {
+    isLoggedIn = false;
+    closeAdmin();
+  }
+
+  // ── TABS ──
+  const tabs = ['add-account', 'add-voucher', 'change-pw', 'manage'];
+  function switchTab(tab) {
+    tabs.forEach(t => {
+      document.getElementById('tab-' + t).style.display = t === tab ? 'block' : 'none';
+    });
+    document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+      btn.classList.toggle('active', tabs[i] === tab);
+    });
+    document.getElementById('dash-msg').innerHTML = '';
+  }
+
+  // ── ADD ACCOUNT ──
+  function addAccount() {
+    const name = document.getElementById('acc-name').value.trim();
+    const price = document.getElementById('acc-price').value.trim();
+    const file = document.getElementById('acc-image').files[0];
+    const msg = document.getElementById('dash-msg');
+    if (!name || !price || !file) {
+      msg.innerHTML = '<div class="msg msg-error">❌ Please fill all fields</div>'; return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const accs = getAccounts();
+      accs.push({ name, price: parseFloat(price), image: reader.result });
+      localStorage.setItem('accounts', JSON.stringify(accs));
+      renderAccounts();
+      msg.innerHTML = '<div class="msg msg-success">✅ Account added!</div>';
+      document.getElementById('acc-name').value = '';
+      document.getElementById('acc-price').value = '';
+      document.getElementById('acc-image').value = '';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // ── ADD VOUCHER ──
+  function addVoucher() {
+    const file = document.getElementById('voucher-image').files[0];
+    const msg = document.getElementById('dash-msg');
+    if (!file) { msg.innerHTML = '<div class="msg msg-error">❌ Please select an image</div>'; return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const vouchers = getVouchers();
+      vouchers.push(reader.result);
+      localStorage.setItem('vouchers', JSON.stringify(vouchers));
+      renderVouchers();
+      msg.innerHTML = '<div class="msg msg-success">✅ Voucher uploaded!</div>';
+      document.getElementById('voucher-image').value = '';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // ── CHANGE PASSWORD ──
+  function changePassword() {
+    const cur = document.getElementById('cur-pw').value;
+    const nw = document.getElementById('new-pw').value;
+    const conf = document.getElementById('conf-pw').value;
+    const msg = document.getElementById('dash-msg');
+    if (!cur || !nw || !conf) { msg.innerHTML = '<div class="msg msg-error">❌ Please fill all fields</div>'; return; }
+    if (cur !== getPassword()) { msg.innerHTML = '<div class="msg msg-error">❌ Current password is incorrect</div>'; return; }
+    if (nw !== conf) { msg.innerHTML = '<div class="msg msg-error">❌ Passwords do not match</div>'; return; }
+    if (nw.length < 6) { msg.innerHTML = '<div class="msg msg-error">❌ Password must be at least 6 characters</div>'; return; }
+    localStorage.setItem('adminPassword', nw);
+    msg.innerHTML = '<div class="msg msg-success">✅ Password changed!</div>';
+    document.getElementById('cur-pw').value = '';
+    document.getElementById('new-pw').value = '';
+    document.getElementById('conf-pw').value = '';
+  }
+
+  // ── DELETE ──
+  function deleteAccount(i) {
+    if (!confirm('Delete this account?')) return;
+    const accs = getAccounts();
+    accs.splice(i, 1);
+    localStorage.setItem('accounts', JSON.stringify(accs));
+    renderAccounts();
+  }
+
+  function deleteVoucher(i) {
+    if (!confirm('Delete this voucher?')) return;
+    const vouchers = getVouchers();
+    vouchers.splice(i, 1);
+    localStorage.setItem('vouchers', JSON.stringify(vouchers));
+    renderVouchers();
+  }
+
+  function clearAll(type) {
+    if (!confirm(`Delete ALL ${type}? This cannot be undone.`)) return;
+    localStorage.removeItem(type);
+    if (type === 'accounts') renderAccounts();
+    else renderVouchers();
+    document.getElementById('dash-msg').innerHTML = `<div class="msg msg-success">✅ All ${type} cleared.</div>`;
+  }
+</script>
+</body>
+</html>
